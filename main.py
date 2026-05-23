@@ -1,6 +1,7 @@
 import asyncio
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from aiogram import Bot, Dispatcher, types
@@ -9,10 +10,11 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 # --- НАСТРОЙКИ ---
 BOT_TOKEN = "8447546621:AAGGqV0YMPjcSJ3hkiZ7niFHo4LvAkNTjmg"
-WEBAPP_URL = "https://madkasymbek.github.io/tg-rpg-webapp/" # Ссылка на GitHub Pages
 
-# --- ИМИТАЦИЯ БАЗЫ ДАННЫХ (на сервере) ---
-# В будущем заменим на SQLite/PostgreSQL
+# ВАЖНО: Вставь сюда свежую ссылку из Termux (со слешем / на конце!)
+TUNNEL_URL = "https://ТВОЯ_НОВАЯ_ССЫЛКА.lhr.life/" 
+
+# --- ИМИТАЦИЯ БАЗЫ ДАННЫХ ---
 player_db = {
     "base_stats": {"hp": 100, "damage": 5, "armor": 2},
     "inventory": [
@@ -26,10 +28,8 @@ player_db = {
     }
 }
 
-# --- WEB API (FastAPI) ---
 app = FastAPI()
 
-# Разрешаем фронтенду обращаться к нашему локальному API (CORS)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -41,9 +41,22 @@ app.add_middleware(
 class EquipRequest(BaseModel):
     item_id: str
 
-@app.get("/player")
+# --- РАЗДАЧА ФАЙЛОВ ФРОНТЕНДА (GitHub больше не нужен!) ---
+@app.get("/")
+async def serve_index():
+    return FileResponse("index.html")
+
+@app.get("/style.css")
+async def serve_css():
+    return FileResponse("style.css")
+
+@app.get("/app.js")
+async def serve_js():
+    return FileResponse("app.js")
+
+# --- WEB API ---
+@app.get("/api/player")
 async def get_player_data():
-    """Отдает фронтенду всю информацию об игроке"""
     total_damage = player_db["base_stats"]["damage"]
     total_armor = player_db["base_stats"]["armor"]
     
@@ -62,9 +75,8 @@ async def get_player_data():
         "equipped": player_db["equipped"]
     }
 
-@app.post("/equip")
+@app.post("/api/equip")
 async def equip_item(req: EquipRequest):
-    """Надевает предмет на сервере"""
     item = next((i for i in player_db["inventory"] if i["id"] == req.item_id), None)
     if not item:
         return {"status": "error", "message": "Предмет не найден"}
@@ -75,26 +87,23 @@ async def equip_item(req: EquipRequest):
     
     return {"status": "error", "message": "Это нельзя надеть"}
 
-# --- ТЕЛЕГРАМ БОТ (Aiogram) ---
+# --- ТЕЛЕГРАМ БОТ ---
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
     markup = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎒 Открыть инвентарь", web_app=WebAppInfo(url=WEBAPP_URL))]
+        [InlineKeyboardButton(text="🎒 Открыть инвентарь", web_app=WebAppInfo(url=TUNNEL_URL))]
     ])
     await message.answer("Добро пожаловать. Проверь свое снаряжение!", reply_markup=markup)
 
 async def start_bot():
     await dp.start_polling(bot)
 
-# --- ЗАПУСК ВСЕГО ВМЕСТЕ ---
 if __name__ == "__main__":
-    # Запускаем FastAPI на порту 8000 в фоне
     config = uvicorn.Config(app, host="0.0.0.0", port=8000, log_level="info")
     server = uvicorn.Server(config)
-    
     loop = asyncio.get_event_loop()
     loop.create_task(server.serve())
     loop.run_until_complete(start_bot())
