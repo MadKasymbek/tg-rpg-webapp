@@ -3,44 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RPG Web App</title>
+    <title>Инвентарь</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="game-container">
-        <div class="panel player-panel">
-            <h2 id="player-name">Герой</h2>
-            <div class="stats">
-                <div class="stat-row">
-                    <span>Ур. <span id="player-level">1</span></span>
+    <div class="container">
+        <div class="panel stats-panel">
+            <h2>Характеристики</h2>
+            <div class="stats-grid">
+                <div class="stat">❤ HP: <span id="stat-hp">...</span></div>
+                <div class="stat">⚔ Урон: <span id="stat-dmg">...</span></div>
+                <div class="stat">🛡 Защита: <span id="stat-armor">...</span></div>
+            </div>
+        </div>
+
+        <div class="panel equip-panel">
+            <h2>Экипировка</h2>
+            <div class="equip-slots">
+                <div class="slot" id="slot-weapon">
+                    <div class="slot-label">Оружие</div>
+                    <div class="slot-content">Пусто</div>
                 </div>
-                <div class="bar-container">
-                    <div class="bar-label">HP: <span id="hp-text">100/100</span></div>
-                    <div class="bar hp-bar"><div id="hp-fill" class="fill"></div></div>
-                </div>
-                <div class="bar-container">
-                    <div class="bar-label">EXP: <span id="exp-text">0/100</span></div>
-                    <div class="bar exp-bar"><div id="exp-fill" class="fill"></div></div>
+                <div class="slot" id="slot-armor">
+                    <div class="slot-label">Броня</div>
+                    <div class="slot-content">Пусто</div>
                 </div>
             </div>
         </div>
 
-        <div class="log-panel" id="combat-log">
-            <p>Вы вошли в игру. Впереди бродит Дикий Волк.</p>
-        </div>
-
-        <div class="panel enemy-panel">
-            <h2 id="enemy-name">Дикий Волк</h2>
-            <div class="bar-container">
-                <div class="bar-label">HP: <span id="enemy-hp-text">50/50</span></div>
-                <div class="bar enemy-hp-bar"><div id="enemy-hp-fill" class="fill"></div></div>
-            </div>
-        </div>
-
-        <div class="controls">
-            <button id="attack-btn" class="btn primary-btn">В бой!</button>
-            <button id="close-btn" class="btn secondary-btn">Выйти</button>
+        <div class="panel inventory-panel">
+            <h2>Рюкзак</h2>
+            <div class="inventory-grid" id="inventory-grid">
+                </div>
         </div>
     </div>
 

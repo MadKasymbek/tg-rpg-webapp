@@ -1,125 +1,67 @@
-// Инициализация Telegram WebApp API
 const tg = window.Telegram.WebApp;
-tg.expand(); // Открываем на весь экран
+tg.expand();
 
-// Состояние игрока
-let player = {
-    name: tg.initDataUnsafe?.user?.first_name || "Неизвестный Герой",
-    level: 1,
-    hp: 100,
-    maxHp: 100,
-    exp: 0,
-    maxExp: 100,
-    damage: 15
-};
+// ВАЖНО: Замени на свой URL от ngrok (см. инструкцию)
+const API_URL = "https://ТВОЙ-АДРЕС.ngrok-free.app/api";
 
-// Состояние врага
-let enemy = {
-    name: "Дикий Волк",
-    hp: 50,
-    maxHp: 50,
-    damage: 8,
-    expReward: 35
-};
+const elHp = document.getElementById('stat-hp');
+const elDmg = document.getElementById('stat-dmg');
+const elArmor = document.getElementById('stat-armor');
+const elWeaponSlot = document.querySelector('#slot-weapon .slot-content');
+const elArmorSlot = document.querySelector('#slot-armor .slot-content');
+const elInventory = document.getElementById('inventory-grid');
 
-// Элементы DOM
-const elPlayerName = document.getElementById('player-name');
-const elPlayerLevel = document.getElementById('player-level');
-const elHpText = document.getElementById('hp-text');
-const elHpFill = document.getElementById('hp-fill');
-const elExpText = document.getElementById('exp-text');
-const elExpFill = document.getElementById('exp-fill');
-
-const elEnemyName = document.getElementById('enemy-name');
-const elEnemyHpText = document.getElementById('enemy-hp-text');
-const elEnemyHpFill = document.getElementById('enemy-hp-fill');
-
-const elCombatLog = document.getElementById('combat-log');
-const btnAttack = document.getElementById('attack-btn');
-const btnClose = document.getElementById('close-btn');
-
-// Инициализация UI
-function updateUI() {
-    elPlayerName.innerText = player.name;
-    elPlayerLevel.innerText = player.level;
-    
-    elHpText.innerText = `${player.hp}/${player.maxHp}`;
-    elHpFill.style.width = `${(player.hp / player.maxHp) * 100}%`;
-    
-    elExpText.innerText = `${player.exp}/${player.maxExp}`;
-    elExpFill.style.width = `${(player.exp / player.maxExp) * 100}%`;
-
-    elEnemyName.innerText = enemy.name;
-    elEnemyHpText.innerText = `${enemy.hp}/${enemy.maxHp}`;
-    elEnemyHpFill.style.width = `${(enemy.hp / enemy.maxHp) * 100}%`;
-}
-
-function addLog(message) {
-    const p = document.createElement('p');
-    p.innerText = message;
-    elCombatLog.appendChild(p);
-    elCombatLog.scrollTop = elCombatLog.scrollHeight;
-}
-
-function spawnNewEnemy() {
-    enemy.hp = enemy.maxHp;
-    addLog(`Появляется новый ${enemy.name}!`);
-    updateUI();
-}
-
-function levelUp() {
-    player.level++;
-    player.exp = player.exp - player.maxExp;
-    player.maxExp = Math.floor(player.maxExp * 1.5);
-    player.maxHp += 20;
-    player.hp = player.maxHp; // Лечение при левелапе
-    player.damage += 5;
-    addLog(`🎉 Поздравляем! Вы достигли ${player.level} уровня!`);
-}
-
-// Логика боя
-btnAttack.addEventListener('click', () => {
-    if (player.hp <= 0) {
-        addLog("Вы мертвы. Нажмите 'Выйти', чтобы начать заново.");
-        return;
+// Загрузка данных с бэкенда
+async function fetchPlayerData() {
+    try {
+        const response = await fetch(`${API_URL}/player`);
+        const data = await response.json();
+        renderUI(data);
+    } catch (e) {
+        tg.showAlert("Ошибка связи с сервером!");
     }
+}
 
-    // Удар игрока
-    enemy.hp -= player.damage;
-    if (enemy.hp < 0) enemy.hp = 0;
-    addLog(`Вы ударили ${enemy.name} на ${player.damage} урона.`);
-
-    // Проверка смерти врага
-    if (enemy.hp === 0) {
-        addLog(`Вы убили ${enemy.name} и получили ${enemy.expReward} опыта.`);
-        player.exp += enemy.expReward;
-        
-        if (player.exp >= player.maxExp) {
-            levelUp();
-        }
-        
-        updateUI();
-        setTimeout(spawnNewEnemy, 1000);
-        return;
+// Отправка команды на надевание предмета
+async function equipItem(itemId) {
+    try {
+        tg.HapticFeedback.impactOccurred('light');
+        await fetch(`${API_URL}/equip`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId })
+        });
+        // После надевания запрашиваем обновленные статы
+        fetchPlayerData();
+    } catch (e) {
+        tg.showAlert("Не удалось надеть предмет.");
     }
+}
 
-    // Удар врага
-    player.hp -= enemy.damage;
-    if (player.hp < 0) player.hp = 0;
-    addLog(`${enemy.name} кусает вас на ${enemy.damage} урона.`);
+// Отрисовка интерфейса
+function renderUI(data) {
+    // 1. Обновляем статы
+    elHp.innerText = data.stats.hp;
+    elDmg.innerText = data.stats.damage;
+    elArmor.innerText = data.stats.armor;
 
-    if (player.hp === 0) {
-        addLog("💀 Вы погибли в бою...");
-    }
+    // 2. Обновляем экипировку
+    elWeaponSlot.innerText = data.equipped.weapon ? data.equipped.weapon.icon : "Пусто";
+    elArmorSlot.innerText = data.equipped.armor ? data.equipped.armor.icon : "Пусто";
 
-    updateUI();
-});
+    // 3. Обновляем рюкзак
+    elInventory.innerHTML = "";
+    data.inventory.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+            <div class="item-icon">${item.icon}</div>
+            <div class="item-name">${item.name}</div>
+        `;
+        div.onclick = () => equipItem(item.id);
+        elInventory.appendChild(div);
+    });
+}
 
-// Логика закрытия Web App
-btnClose.addEventListener('click', () => {
-    // Здесь позже можно отправлять данные о прогрессе обратно в бота через tg.sendData()
-    tg.close();
-});
-
-// Старт
-updateUI();
+// Запуск
+fetchPlayerData();
