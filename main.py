@@ -12,7 +12,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 BOT_TOKEN = "8447546621:AAGGqV0YMPjcSJ3hkiZ7niFHo4LvAkNTjmg"
 
 # ВАЖНО: Вставь сюда свежую ссылку из Termux (со слешем / на конце!)
-TUNNEL_URL = "https://ТВОЯ_НОВАЯ_ССЫЛКА.lhr.life/" 
+TUNNEL_URL = "https://8c6cde8bfadd4c.lhr.life/" 
 
 # --- ИМИТАЦИЯ БАЗЫ ДАННЫХ ---
 player_db = {
