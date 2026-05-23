@@ -12,7 +12,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 # --- НАСТРОЙКИ ---
 BOT_TOKEN = "8447546621:AAGGqV0YMPjcSJ3hkiZ7niFHo4LvAkNTjmg"
-TUNNEL_URL = "https://8c6cde8bfadd4c.lhr.life/" # Не забудь обновить после перезапуска туннеля!
+TUNNEL_URL = "https://madkasymbek.github.io/tg-rpg-webapp/" # Не забудь обновить после перезапуска туннеля!
 
 # --- БАЗА ДАННЫХ (SQLite) ---
 def init_db():
