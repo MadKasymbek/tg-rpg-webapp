@@ -41,7 +41,7 @@ app.add_middleware(
 class EquipRequest(BaseModel):
     item_id: str
 
-@app.get("/api/player")
+@app.get("/player")
 async def get_player_data():
     """Отдает фронтенду всю информацию об игроке"""
     total_damage = player_db["base_stats"]["damage"]
@@ -62,7 +62,7 @@ async def get_player_data():
         "equipped": player_db["equipped"]
     }
 
-@app.post("/api/equip")
+@app.post("/equip")
 async def equip_item(req: EquipRequest):
     """Надевает предмет на сервере"""
     item = next((i for i in player_db["inventory"] if i["id"] == req.item_id), None)
