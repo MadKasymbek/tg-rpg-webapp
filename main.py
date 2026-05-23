@@ -8,8 +8,8 @@ from aiogram.filters import CommandStart
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 # --- НАСТРОЙКИ ---
-BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"
-WEBAPP_URL = "https://твой-ник.github.io/твой-репозиторий/" # Ссылка на GitHub Pages
+BOT_TOKEN = "8447546621:AAGGqV0YMPjcSJ3hkiZ7niFHo4LvAkNTjmg"
+WEBAPP_URL = "https://madkasymbek.github.io/tg-rpg-webapp/" # Ссылка на GitHub Pages
 
 # --- ИМИТАЦИЯ БАЗЫ ДАННЫХ (на сервере) ---
 # В будущем заменим на SQLite/PostgreSQL
