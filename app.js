@@ -2,7 +2,7 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 // ВАЖНО: Замени на свой URL от ngrok (см. инструкцию)
-const API_URL = "https://ТВОЙ-АДРЕС.ngrok-free.app/api";
+const API_URL = "https://75beeda84831fb.lhr.life";
 
 const elHp = document.getElementById('stat-hp');
 const elDmg = document.getElementById('stat-dmg');
